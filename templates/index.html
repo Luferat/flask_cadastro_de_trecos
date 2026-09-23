@@ -1,13 +1,24 @@
-{#
-templates\index.html
-Template da rota inicial
-#}
+{# templates\index.html #}
 
 {% extends '_base.html' %}
 
 {% block main %}
 
-<h2>Página inicial</h2>
-<p>Aqui teremos o conteúdo dinâmico da página inicial.</p>
+<h2>Todos os Trecos</h2>
+<small>Mais recentes primeiro.</small>
+
+{% if total > 0 %}
+    {% for content in contents %}
+        <p>
+            <img src="{{ content.photo }}" alt="{{ content.name }}" width="100"><br>
+            <a href="{{ url_for('view', thing_id=content.id) }}">{{ content.name }}</a>
+        </p>
+    {% endfor %}
+{% else %}
+    <p>
+        Nenhum treco cadastrado ainda!
+        <a href="{{ url_for('new_thing') }}">Cadastre um treco</a>
+    </p>
+{% endif %}
 
 {% endblock %}
