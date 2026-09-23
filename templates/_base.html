@@ -1,0 +1,38 @@
+{#
+templates\_base.html
+Template base
+#}
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Trecos</title>
+</head>
+
+<body>
+
+    <header>
+        <h1>Cadastro de Trecos</h1>
+    </header>
+    <hr>
+
+    <nav>
+        <a href="{{ url_for('index') }}">Início</a>
+        <a href="{{ url_for('new_thing') }}">Novo</a>
+        <a href="{{ url_for('about') }}">Sobre</a>
+    </nav>
+    <hr>
+
+    <main>
+        {# O conteúdo do template da rota aparece aqui! #}
+        {% block main %}{% endblock %}
+    </main>
+    <hr>
+
+    <footer>&copy; 2026 Cadastro de Trecos</footer>
+
+</body>
+
+</html>
