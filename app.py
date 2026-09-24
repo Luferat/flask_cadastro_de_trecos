@@ -18,7 +18,7 @@ def index():
     with sqlite3.connect('database.db') as conn:
         conn.row_factory = sqlite3.Row
         contents = conn.execute("""
-            SELECT id, name, photo 
+            SELECT id, name, photo
             FROM thing
                 WHERE status = 'on'
                 ORDER BY created_at DESC
@@ -128,6 +128,34 @@ def edit(thing_id):
         'edit.html',
         content=content
     )
+
+
+@app.route('/delete/<int:thing_id>')
+def delete(thing_id):
+
+    with sqlite3.connect('database.db') as conn:
+        conn.row_factory = sqlite3.Row
+
+        content = conn.execute("""
+            SELECT id
+            FROM thing
+                WHERE status = 'on'
+                    AND id = ?
+        """, (thing_id,)).fetchone()
+
+        if content is None:
+            abort(404)
+
+        conn.execute("""
+            UPDATE thing 
+                SET status = 'del'
+                WHERE status = 'on'
+                    AND id = ?
+        """, (thing_id,))
+
+        flash('Registro apagado com sucesso!', 'success')
+
+        return redirect(url_for('index', thing_id=thing_id))
 
 
 @app.route("/about")

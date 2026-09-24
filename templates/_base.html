@@ -26,8 +26,19 @@ Template base
     <hr>
 
     <main>
+
+        {# Exibe mensagens "flash" vindas da session #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
         {# O conteúdo do template da rota aparece aqui! #}
         {% block main %}{% endblock %}
+
     </main>
     <hr>
 
