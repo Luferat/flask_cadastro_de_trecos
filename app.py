@@ -3,11 +3,13 @@ app.py
 Aplicativo principal
 '''
 
-from flask import Flask, abort, render_template, request
+from flask import Flask, abort, flash, redirect, render_template, request, url_for
 import sqlite3
 import random
 
 app = Flask(__name__)
+
+app.secret_key = '_use_uma_secret_key_de_verdade_aqui_e_use_dotenv_em_deploy_'
 
 
 @app.route("/")
@@ -81,6 +83,50 @@ def new_thing():
         photo_number=photo_number,
         thing_name=thing_name,
         sended=sended
+    )
+
+
+@app.route('/edit/<int:thing_id>', methods=['GET', 'POST'])
+def edit(thing_id):
+
+    with sqlite3.connect('database.db') as conn:
+        conn.row_factory = sqlite3.Row
+
+        content = conn.execute("""
+            SELECT *
+            FROM thing
+            WHERE status = 'on'
+              AND id = ?
+        """, (thing_id,)).fetchone()
+
+    if content is None:
+        abort(404)
+
+    if request.method == 'POST':
+        name = request.form['name'].strip()
+        description = request.form['description'].strip()
+        location = request.form['location'].strip()
+        photo = request.form['photo'].strip()
+
+        with sqlite3.connect('database.db') as conn:
+            conn.execute("""
+                UPDATE thing
+                SET
+                    name = ?,
+                    description = ?,
+                    location = ?,
+                    photo = ?
+                WHERE status = 'on'
+                  AND id = ?
+            """, (name, description, location, photo, thing_id))
+
+        flash('Registro atualizado com sucesso!', 'success')
+
+        return redirect(url_for('view', thing_id=thing_id))
+
+    return render_template(
+        'edit.html',
+        content=content
     )
 
 

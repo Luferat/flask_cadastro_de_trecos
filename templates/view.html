@@ -2,6 +2,14 @@
 {% extends '_base.html' %}
 {% block main %}
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endwith %}
+
 <h2>{{ content.name }}</h2>
 <p><img src="{{ content.photo }}" alt="{{ content.name }}"></p>
 <p>{{ content.description }}</p>
@@ -10,6 +18,7 @@ Metadados:
 <ul>
     <li>Cadastrado em {{ content.created_at }}</li>
     <li>Localizado em {{ content.location }}</li>
+    <li>Ações: <a href="{{ url_for('edit', thing_id=content.id )}}">✏ Editar</a> | <a href="">🗑 Apagar</a></a></li>
 </ul>
 
 <p><a href="{{ url_for('index') }}">◂ Página incial</a></p>
