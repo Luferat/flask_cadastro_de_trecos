@@ -29,11 +29,11 @@ Template base
 
         {# Exibe mensagens "flash" vindas da session #}
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
+        {% for category, message in messages %}
+        <p class="alert alert-{{ category }}">
+            {{ message }}
+        </p>
+        {% endfor %}
         {% endwith %}
 
         {# O conteúdo do template da rota aparece aqui! #}

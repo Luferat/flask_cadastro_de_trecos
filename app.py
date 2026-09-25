@@ -58,9 +58,7 @@ def view(thing_id):
 @app.route("/new", methods=['GET', 'POST'])
 def new_thing():
 
-    sended = False
     photo_number = random.randint(10, 999)
-    thing_name = str()
 
     if request.method == 'POST':
         name = request.form['name'].strip()
@@ -69,20 +67,19 @@ def new_thing():
         photo = request.form['photo'].strip()
 
         with sqlite3.connect('database.db') as conn:
-            conn.execute("""
+            cursor = conn.execute("""
                 INSERT INTO thing (
                     name, description, location, photo
                 ) VALUES (?, ?, ?, ?)
-            """, (name, description, location, photo,))
+            """, (name, description, location, photo))
+        
+            flash('Registro cadastrado com sucesso!', 'success')
 
-            sended = True
-            thing_name = name
+            return redirect(url_for('view', thing_id=cursor.lastrowid))
 
     return render_template(
         "new.html",
-        photo_number=photo_number,
-        thing_name=thing_name,
-        sended=sended
+        photo_number=photo_number
     )
 
 
