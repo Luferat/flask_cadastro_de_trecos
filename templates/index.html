@@ -4,19 +4,24 @@
 
 {% block main %}
 
+<style>
+   
+</style>
+
 <section>
 
     <h2>Todos os Trecos</h2>
     <small>Mais recentes primeiro.</small>
 
     {% if total > 0 %}
-    <div>
+    <div class="grid">
         {% for content in contents %}
-        <div>
-            <div><img src="{{ content.photo }}" alt="{{ content.name }}" width="100"></div>
-            <div><a href="{{ url_for('view', thing_id=content.id) }}">{{ content.name }}</a></div>
+        <div class="cell">
+            <div class="card">
+                <div class="card-image" style="background-image: url('{{ content.photo }}');" title="{{ content.name }}"></div>
+                <div class="card-body"><a href="{{ url_for('view', thing_id=content.id) }}">{{ content.name }}</a></div>
+            </div>
         </div>
-        &nbsp;
         {% endfor %}
     </div>
     {% else %}

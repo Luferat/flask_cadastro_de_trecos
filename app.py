@@ -29,7 +29,8 @@ def index():
     return render_template(
         'index.html',
         contents=contents,
-        total=total
+        total=total,
+        page_css='index.css'
     )
 
 
