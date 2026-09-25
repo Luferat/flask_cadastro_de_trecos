@@ -73,7 +73,7 @@ def new_thing():
                     name, description, location, photo
                 ) VALUES (?, ?, ?, ?)
             """, (name, description, location, photo))
-        
+
             flash('Registro cadastrado com sucesso!', 'success')
 
             return redirect(url_for('view', thing_id=cursor.lastrowid))
