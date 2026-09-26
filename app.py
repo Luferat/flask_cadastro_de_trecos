@@ -15,9 +15,9 @@ app.secret_key = '_use_uma_secret_key_de_verdade_aqui_e_use_dotenv_em_deploy_'
 @app.route("/")
 def index():
 
-    page = request.args.get("page", 1, type=int)
+    page = request.args.get("p", 1, type=int)
 
-    per_page = 12
+    per_page = 18
     offset = (page - 1) * per_page
 
     with sqlite3.connect('database.db') as conn:

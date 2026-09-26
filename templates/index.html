@@ -29,7 +29,7 @@
     <nav class="pagination">
 
         {% if page > 1 %}
-        <a href="{{ url_for('index', page=page - 1) }}">&laquo;</a>
+        <a href="{{ url_for('index', p=page - 1) }}">&laquo;</a>
         {% endif %}
 
         {# Paginação de resultados #}
@@ -38,11 +38,11 @@
         {% if number == page %}
         <strong>{{ number }}</strong>
         {% else %}
-        <a href="{{ url_for('index', page=number) }}">{{ number }}</a>
+        <a href="{{ url_for('index', p=number) }}">{{ number }}</a>
         {% endif %}
         {% endfor %}
 
-        {% if page < pages %} <a href="{{ url_for('index', page=page + 1) }}">&raquo;</a>
+        {% if page < pages %} <a href="{{ url_for('index', p=page + 1) }}">&raquo;</a>
             {% endif %}
 
     </nav>
