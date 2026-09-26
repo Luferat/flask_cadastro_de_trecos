@@ -151,3 +151,17 @@ main>section h2:first-child, main>article h2:first-child {
 .card-body {
     padding: .5rem;
 }
+
+.pagination {
+    margin-top: 2rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pagination > * {
+    padding: .5rem;
+    text-align: center;
+    border-top: 2px solid grey;
+}

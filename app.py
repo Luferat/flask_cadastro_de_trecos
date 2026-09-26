@@ -15,21 +15,36 @@ app.secret_key = '_use_uma_secret_key_de_verdade_aqui_e_use_dotenv_em_deploy_'
 @app.route("/")
 def index():
 
+    page = request.args.get("page", 1, type=int)
+
+    per_page = 12
+    offset = (page - 1) * per_page
+
     with sqlite3.connect('database.db') as conn:
         conn.row_factory = sqlite3.Row
+
         contents = conn.execute("""
             SELECT id, name, photo
             FROM thing
-                WHERE status = 'on'
-                ORDER BY created_at DESC
-        """).fetchall()
+            WHERE status = 'on'
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        """, (per_page, offset)).fetchall()
 
-    total = len(contents)
+        total = conn.execute("""
+            SELECT COUNT(*)
+            FROM thing
+            WHERE status = 'on'
+        """).fetchone()[0]
+
+    pages = (total + per_page - 1) // per_page
 
     return render_template(
         'index.html',
         contents=contents,
         total=total,
+        page=page,
+        pages=pages,
         page_css='index.css'
     )
 
