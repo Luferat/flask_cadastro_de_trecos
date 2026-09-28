@@ -165,3 +165,16 @@ main>section h2:first-child, main>article h2:first-child {
     text-align: center;
     border-top: 2px solid grey;
 }
+
+.alert {
+    padding: .5rem;
+    margin: 1rem;
+    border-radius: 5px;
+    text-align: center;
+    border: 1px solid grey;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
