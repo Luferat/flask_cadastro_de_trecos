@@ -6,18 +6,39 @@ Aplicativo principal
 from flask import Flask, abort, flash, redirect, render_template, request, url_for
 import sqlite3
 import random
+from flask_cors import CORS
 
 app = Flask(__name__)
+
+CORS(app)
 
 app.secret_key = '_use_uma_secret_key_de_verdade_aqui_e_use_dotenv_em_deploy_'
 
 
+@app.errorhandler(404)
+def not_found(error):
+
+    if request.path.startswith("/api/"):
+        return {
+            "error": {
+                "code": 404,
+                "message": "Recurso não encontrado."
+            }
+        }, 404
+
+    return render_template(
+        "404.html"
+    ), 404
+
+
+
+@app.route("/api/things")
 @app.route("/")
 def index():
 
     page = request.args.get("p", 1, type=int)
 
-    per_page = 18
+    per_page = 10
     offset = (page - 1) * per_page
 
     with sqlite3.connect('database.db') as conn:
@@ -39,6 +60,16 @@ def index():
 
     pages = (total + per_page - 1) // per_page
 
+    if request.path.startswith('/api/'):
+        return {
+            "data": [dict(content) for content in contents],
+            "metadata": {
+                "total": total,
+                "page": page,
+                "pages": pages
+            }
+        }
+
     return render_template(
         'index.html',
         contents=contents,
@@ -49,6 +80,7 @@ def index():
     )
 
 
+@app.route('/api/things/<int:thing_id>')
 @app.route('/view/<int:thing_id>')
 def view(thing_id):
 
@@ -65,22 +97,37 @@ def view(thing_id):
     if content is None:
         abort(404)
 
+    if request.path.startswith('/api/'):
+        return {
+            "data": dict(content),
+        }
+
     return render_template(
         "view.html",
         content=content
     )
 
 
+@app.route("/api/things", methods=["POST"])
 @app.route("/new", methods=['GET', 'POST'])
 def new_thing():
 
     photo_number = random.randint(10, 999)
 
     if request.method == 'POST':
-        name = request.form['name'].strip()
-        description = request.form['description'].strip()
-        location = request.form['location'].strip()
-        photo = request.form['photo'].strip()
+
+        # Dados
+        if request.path.startswith("/api/"):
+            data = request.get_json()
+        else:
+            data = request.form
+
+        name = data["name"].strip()
+        description = data["description"].strip()
+        location = data["location"].strip()
+        photo = data["photo"].strip()
+
+        # Tratar os dados que vieram do front
 
         with sqlite3.connect('database.db') as conn:
             cursor = conn.execute("""
@@ -89,9 +136,21 @@ def new_thing():
                 ) VALUES (?, ?, ?, ?)
             """, (name, description, location, photo))
 
-            flash('Registro cadastrado com sucesso!', 'success')
+            thing_id = cursor.lastrowid
 
-            return redirect(url_for('view', thing_id=cursor.lastrowid))
+        # Response JSON da API
+        if request.path.startswith("/api/"):
+            return {
+                "id": thing_id,
+                "name": name,
+                "description": description,
+                "location": location,
+                "photo": photo
+            }, 201
+
+        flash('Registro cadastrado com sucesso!', 'success')
+
+        return redirect(url_for('view', thing_id=cursor.lastrowid))
 
     return render_template(
         "new.html",
@@ -99,6 +158,7 @@ def new_thing():
     )
 
 
+@app.route('/api/things/<int:thing_id>', methods=['PUT'])
 @app.route('/edit/<int:thing_id>', methods=['GET', 'POST'])
 def edit(thing_id):
 
@@ -115,11 +175,20 @@ def edit(thing_id):
     if content is None:
         abort(404)
 
-    if request.method == 'POST':
-        name = request.form['name'].strip()
-        description = request.form['description'].strip()
-        location = request.form['location'].strip()
-        photo = request.form['photo'].strip()
+    if request.method == "POST" or request.method == "PUT":
+
+        # Dados
+        if request.path.startswith("/api/"):
+            data = request.get_json()
+        else:
+            data = request.form
+
+        name = data["name"].strip()
+        description = data["description"].strip()
+        location = data["location"].strip()
+        photo = data["photo"].strip()
+
+        # Valida os dados aqui
 
         with sqlite3.connect('database.db') as conn:
             conn.execute("""
@@ -133,6 +202,16 @@ def edit(thing_id):
                   AND id = ?
             """, (name, description, location, photo, thing_id))
 
+        # Response
+        if request.path.startswith("/api/"):
+            return {
+                "id": thing_id,
+                "name": name,
+                "description": description,
+                "location": location,
+                "photo": photo
+            }
+
         flash('Registro atualizado com sucesso!', 'success')
 
         return redirect(url_for('view', thing_id=thing_id))
@@ -142,7 +221,7 @@ def edit(thing_id):
         content=content
     )
 
-
+@app.route("/api/things/<int:thing_id>", methods=["DELETE"])
 @app.route('/delete/<int:thing_id>')
 def delete(thing_id):
 
@@ -166,9 +245,16 @@ def delete(thing_id):
                     AND id = ?
         """, (thing_id,))
 
-        flash('Registro apagado com sucesso!', 'success')
+    # Response da API
+    if request.path.startswith("/api/"):
+        return {
+            "id": thing_id,
+            "status": "deleted"
+        }
 
-        return redirect(url_for('index', thing_id=thing_id))
+    flash('Registro apagado com sucesso!', 'success')
+
+    return redirect(url_for('index', thing_id=thing_id))
 
 
 @app.route("/about")
