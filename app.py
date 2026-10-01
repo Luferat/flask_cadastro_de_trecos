@@ -10,9 +10,19 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 
+sitename = "Cadastro de Coisas"
+
 CORS(app)
 
 app.secret_key = '_use_uma_secret_key_de_verdade_aqui_e_use_dotenv_em_deploy_'
+
+
+# Passa valores em comum para todas as páginas / rotas
+@app.context_processor
+def inject_globals():
+    return {
+        "sitename": sitename
+    }
 
 
 @app.errorhandler(404)
@@ -27,7 +37,8 @@ def not_found(error):
         }, 404
 
     return render_template(
-        "404.html"
+        "404.html",
+        tag_title=f'{sitename} - Erro 404'
     ), 404
 
 
@@ -76,7 +87,8 @@ def index():
         total=total,
         page=page,
         pages=pages,
-        page_css='index.css'
+        page_css='index.css',
+        tag_title=sitename
     )
 
 
@@ -104,7 +116,8 @@ def view(thing_id):
 
     return render_template(
         "view.html",
-        content=content
+        content=content,
+        tag_title=f'{sitename} - {content['name']}'
     )
 
 
@@ -154,7 +167,8 @@ def new_thing():
 
     return render_template(
         "new.html",
-        photo_number=photo_number
+        photo_number=photo_number,
+        tag_title=f'{sitename} - Novo Treco'
     )
 
 
